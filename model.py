@@ -36,8 +36,8 @@ class Property(Model):
 		db = get_db()
 		try:
 			x = db.cursor()
-			sql = ('SELECT lat,lon,bed,bath,price,listed_on,id FROM {} WHERE id = {}'.format(cls.table))
-			x.excecute(sql,id)
+			sql = ('SELECT lat,lon,bed,bath,price,listed_on,id FROM {} WHERE id = %s'.format(cls.table))
+			x.excecute(sql,(id,))
 			data = x.fetchone()
 			if data:
 				obj = cls(*data)
