@@ -5,33 +5,18 @@ class Model(object):
 	@property
 	def json(self):
 		return json.dumps(self.__dict__)
-	@classmethod
-	def get_by_id(cls,id):
-		db = get_db()
-		try:
-			x = db.cursor()
-			sql = ('SELECT * FROM {} WHERE id = {}'.format(cls.table))
-			x.excecute(sql,id)
-			data = x.fetchone()
-			if data:
-				return cls(**data)
-		except Exception as e:
-			print e
-		finally:
-			x.close()
-	def get_all(limit):
-		return []
 
 class Property(Model):
 	table = "properties"
 
-	def __init__(self,lat,lon,bed,bath,price, listed_on):
+	def __init__(self,lat,lon,bed,bath,price, listed_on,id=None):
 		self.lat = lat
 		self.lon = lon
 		self.bed = bed
 		self.bath = bath
 		self.price = price
 		self.listed_on = listed_on or int((datetime.utcnow()-datetime(1970,1,1)).total_seconds())
+		self.id = id
 
 	def save(self):
 		db = get_db()
@@ -45,6 +30,23 @@ class Property(Model):
 			db.rollback()
 		finally:
 			x.close()
+
+	@classmethod
+	def get_by_id(cls,id):
+		db = get_db()
+		try:
+			x = db.cursor()
+			sql = ('SELECT lat,lon,bed,bath,price,listed_on,id FROM {} WHERE id = {}'.format(cls.table))
+			x.excecute(sql,id)
+			data = x.fetchone()
+			if data:
+				obj = cls(*data)
+		except Exception as e:
+			print e
+		finally:
+			x.close()
+	def get_all(limit):
+		return []
 
 class Requirement(Model):
 	table = "requirements"
