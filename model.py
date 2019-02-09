@@ -22,7 +22,7 @@ class Property(Model):
 		db = get_db()
 		try:
 			x = db.cursor()
-			x.excecute("""INSERT INTO properties (lat,lon,bed,bath,price,listed_on) VALUES (%s,%s,%s,%s,%s,%s)""",
+			x.execute("""INSERT INTO properties (lat,lon,bed,bath,price,listed_on) VALUES (%s,%s,%s,%s,%s,%s)""",
 				(self.lat,self.lon,self.bed,self.bath,self.price, self.listed_on))
 			db.commit()
 		except Exception as e:
@@ -37,7 +37,7 @@ class Property(Model):
 		try:
 			x = db.cursor()
 			sql = ('SELECT lat,lon,bed,bath,price,listed_on,id FROM {} WHERE id = %s'.format(cls.table))
-			x.excecute(sql,(id,))
+			x.execute(sql,(id,))
 			data = x.fetchone()
 			if data:
 				obj = cls(*data)
@@ -66,7 +66,7 @@ class Requirement(Model):
 		db = get_db()
 		try:
 			x = db.cursor()
-			return x.excecute("""INSERT INTO requirements (lat,lon,min_bed,max_bed,min_bath,max_bath,min_budget,max_budget,listed_on) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+			return x.execute("""INSERT INTO requirements (lat,lon,min_bed,max_bed,min_bath,max_bath,min_budget,max_budget,listed_on) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
 				(self.lat,self.lon,self.min_bed,self.max_bed,self.min_bath,self.max_bath,self.min_budget,self.max_budget,self.listed_on))
 			db.commit()
 		except Exception as e:
