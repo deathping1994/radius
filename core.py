@@ -202,13 +202,13 @@ class Properties(object):
 		self.redis.zadd(sql_hash,matches)
 		
 
-	def find_matching_properties(self, distance,radius):
+	def find_matching_requirements(self, distance,radius):
 		# matches = self._get_result_from_cache()
 		# if matches:
 		# 	return matches
 		bounding_coordinates = GeoHelper.get_bounding_coordinates(distance, radius,self.lat_rad,self.lon_rad)
 		meridian180WithinDistance =bounding_coordinates[0][1] > bounding_coordinates[1][1]
-		sql = """SELECT *, {} * (acos(sin({}) * sin(lat) + cos({}) * cos(lat) * cos(lon - {}))) as distance FROM properties_new WHERE (lat >= {} AND lat <= {}) AND (lon >= {} """ + ("OR" if meridian180WithinDistance else "AND") + " lon <= {})"
+		sql = """SELECT *, {} * (acos(sin({}) * sin(lat) + cos({}) * cos(lat) * cos(lon - {}))) as distance FROM requirements WHERE (lat >= {} AND lat <= {}) AND (lon >= {} """ + ("OR" if meridian180WithinDistance else "AND") + " lon <= {})"
 		params = (	radius,
 					self.lat_rad,
 					self.lat_rad,
@@ -220,9 +220,9 @@ class Properties(object):
 					distance
 					)
 		sql_where_clause =[
-			"price BETWEEN %s AND %s" % ((self.min_budget*0.75 or self.max_budget*0.75),(self.max_budget*1.25 or self.min_budget*1.25)),
-			"bed BETWEEN %s AND %s" %((self.min_bedrooms - 2 or self.max_bedrooms - 2),(self.max_bedrooms + 2 or self.min_bedrooms + 2)),
-			"bath BETWEEN %s AND %s" % ((self.min_bathroom - 2 or self.max_bathroom - 2),(self.max_bathroom + 2 or self.min_bathroom + 2))
+			"min_budget <= %s AND max_budget >= %s " % (self.price, self.price),
+			"min_bed <= %s AND max_bed>= %s" %(self.bedroom, self.bedroom),
+			"min_bath <= %s AND max_bath>= %s" %(self.bathroom, self.bathroom)
 		]
 		sql_having_clause = " HAVING distance <= {}"
 		sql_parts = [sql]
