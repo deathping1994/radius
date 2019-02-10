@@ -18,7 +18,7 @@ primary index the tables also have secondary B-Tree index on price,bedroom,bathr
 
 ## Performance
 
-Tested for 8 Million Properties and 1 million Requirements
+Tested for 8 Million Properties and 1 million Requirements on 1GB/Single Core/SSD server 
 - (A) - Response time Without Cache  ~13.02 ms
 - (B) - Response time with cache but cache miss ~22.34 ms
 - (C) - Response time when cache hit ~2ms
