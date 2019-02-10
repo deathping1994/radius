@@ -1,12 +1,16 @@
 import sys
+import os
 import datetime
 from core import Requirement, Properties
 
 data_file = open("data.csv")
 start_time = datetime.datetime.utcnow()
 batch_start_time = start_time
-i =0 
+i =0
+limit = int(os.environ.get('LIMIT',"100000") )
 for line in data_file:
+	if i >= limit:
+		break
 	line = line.split(',')
 	data = {
 		"lat": float(line[1]),
