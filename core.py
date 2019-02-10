@@ -294,7 +294,6 @@ class Properties(object):
 		sql = " AND ".join(sql_parts) + sql_having_clause
 		x = self.db.cursor()
 		x.execute(sql.format(*params))
-		print sql.format(*params)
 		results = get_results(x)
 		matches = []
 		for prop in results:
