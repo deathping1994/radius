@@ -1,20 +1,12 @@
 from math import pi, radians, asin, sin, cos
 from hashlib import md5
+import json
 import redis
 import sys
-import db
+from db import DBHelper
 
 PI = pi
 
-
-def get_results(db_cursor):
-		desc = [d[0] for d in db_cursor.description]
-		results = [dotdict(dict(zip(desc, res))) for res in db_cursor.fetchall()]
-		return results
-class dotdict(dict):
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
 
 class GeoHelper(object):
 	"""docstring for ClassName"""
@@ -158,6 +150,7 @@ class MatchesCollection(object):
 			match.score = total_score
 		return sorted(matches,key=lambda x:x.score, reverse=True)
 
+		
 class Requirement(object):
 	"""docstring for ClassName"""
 	def __init__(self, lat,lon,min_budget,max_budget,min_bedrooms,max_bedrooms,min_bathroom,max_bathroom, listed_on = None, id = None):
@@ -173,18 +166,10 @@ class Requirement(object):
 		self.max_bathroom = max_bathroom
 		self.sql = None
 		self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-		self.db = db.get_db()
+		self.db = DBHelper.get_db()
 		self.score = None
 
-	def _get_result_from_cache(self):
-		if self.sql:
-			sql_hash = md5(self.sql).hexdigest()
-			cached_result = self.redis.zrange_by_score(sql_hash,0,0.4)
-			return cached_result
 	
-	def _set_result_in_cache(self, sql, matches):
-		sql_hash = md5(sql or self.sql).hexdigest()
-		self.redis.zadd(sql_hash,matches)
 
 	def find_matching_properties(self, distance,radius):
 		# matches = self._get_result_from_cache()
@@ -212,9 +197,8 @@ class Requirement(object):
 		sql_parts = [sql]
 		sql_parts.extend(sql_where_clause)
 		sql = " AND ".join(sql_parts) + sql_having_clause
-		x = self.db.cursor()
-		x.execute(sql.format(*params))
-		results = get_results(x)
+		sql = sql.format(*params)
+		results = DBHelper.execute_query(self.db.cursor(),sql)
 		matches = []
 		for prop in results:
 			prop = Properties(**prop)
@@ -236,7 +220,7 @@ class Properties(object):
 		self.listed_on = listed_on
 		self.id = id
 		self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-		self.db = db.get_db()
+		self.db = DBHelper.get_db()
 	def __repr__(self):
 		temp = self.__dict__
 		del temp['sql']
@@ -252,13 +236,13 @@ class Properties(object):
 	
 	def _set_result_in_cache(self, sql, matches):
 		sql_hash = md5(sql or self.sql).hexdigest()
-		self.redis.zadd(sql_hash,matches)
+		self.redis.set(sql_hash,matches)
 		
 
 	def find_matching_requirements(self, distance,radius):
-		# matches = self._get_result_from_cache()
-		# if matches:
-		# 	return matches
+		matches = self._get_result_from_cache()
+		if matches:
+			return matches
 		bounding_coordinates = GeoHelper.get_bounding_coordinates(distance, radius,self.lat_rad,self.lon_rad)
 		meridian180WithinDistance =bounding_coordinates[0][1] > bounding_coordinates[1][1]
 		sql = """SELECT *, {} * (acos(sin({}) * sin(lat) + cos({}) * cos(lat) * cos(lon - {}))) as distance FROM requirements WHERE (lat >= {} AND lat <= {}) AND (lon >= {} """ + ("OR" if meridian180WithinDistance else "AND") + " lon <= {})"
@@ -273,17 +257,15 @@ class Properties(object):
 					distance
 					)
 		sql_where_clause =[
-			"min_budget <= %s AND max_budget >= %s " % (self.price, self.price),
-			"min_bed <= %s AND max_bed>= %s" %(self.bedroom, self.bedroom),
-			"min_bath <= %s AND max_bath>= %s" %(self.bathroom, self.bathroom)
+			"min_budget*0.75 <= %s AND max_budget*1.25 >= %s " % (self.price, self.price),
+			"min_bed -2 <= %s AND max_bed + 2>= %s" %(self.bedroom, self.bedroom),
+			"min_bath -2 <= %s AND max_bath + 2>= %s" %(self.bathroom, self.bathroom)
 		]
 		sql_having_clause = " HAVING distance <= {}"
 		sql_parts = [sql]
 		sql_parts.extend(sql_where_clause)
 		sql = " AND ".join(sql_parts) + sql_having_clause
-		x = self.db.cursor()
-		x.execute(sql.format(*params))
-		results = get_results(x)
+		results = DBHelper.execute_query(self.db.cursor(),sql.format(*params))
 		matches = []
 		for prop in results:
 			prop = Requirement(**prop)

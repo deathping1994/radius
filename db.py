@@ -1,23 +1,57 @@
 import MySQLdb
 import os
+from hashlib import md5
+import json
+import redis
 
 DB_USER = os.environ.get('DB_USER', 'root')
 DB_HOST = os.environ.get('DB_HOST', 'localhost')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
 DB_NAME = os.environ.get('DB_NAME', 'radius')
 
-db = MySQLdb.connect(host= DB_HOST,
+
+class DBHelper(object):
+      """docstring for DBHelper"""
+      db = MySQLdb.connect(host= DB_HOST,
                   user=DB_USER,
                   passwd=DB_PASSWORD,
                   db=DB_NAME)
+      redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-def get_db():
-	if not db:
-		global db
-		db = MySQLdb.connect(host= DB_HOST,
-                  user=DB_USER,
-                  passwd=DB_PASSWORD,
-                  db=DB_NAME)
-		return db
-	return db
+      @classmethod
+      def get_db(cls):
+            if not db:
+                  global db
+                  db = MySQLdb.connect(host= DB_HOST,
+                        user=DB_USER,
+                        passwd=DB_PASSWORD,
+                        db=DB_NAME)
+                  return db
+            return db
+      @classmethod
+      def execute_query(cls,db_cursor, sql):
+            cached_result = cls._get_result_from_cache(sql)
+            if cached_result:
+                  cached_result = json.loads(cached_result)
+            db_cursor.execute(sql)
+            results = get_results(db_cursor)
+            _set_result_in_cache()
+      @classmethod
+      def _get_result_from_cache(cls, sql):
+            sql_hash = md5(sql).hexdigest()
+            cached_result = self.redis.get(sql_hash)
+            return cached_result
+      @classmethod
+      def _set_result_in_cache(cls, sql, matches):
+            sql_hash = md5(sql).hexdigest()
+            cls.redis.set(sql_hash,json.dumps(matches))
+      @classmethod
+      def get_results(cls, db_cursor):
+            desc = [d[0] for d in db_cursor.description]
+            results = [dotdict(dict(zip(desc, res))) for res in db_cursor.fetchall()]
+            return results
 
+class dotdict(dict):
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
