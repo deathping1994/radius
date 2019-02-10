@@ -5,10 +5,10 @@ data = {
 	"lon": float(sys.argv[2]),
 	"min_budget": 1000,
 	"max_budget": 150000,
-	"max_bathroom": 100,
-	"min_bathroom": 3,
-	"max_bedrooms": 100,
-	"min_bedrooms": 4
+	"max_bath": 100,
+	"min_bath": 3,
+	"max_bed": 100,
+	"min_bed": 4
 }
 r = Requirement(**data)
 print r.find_matching_properties(10.0000,6371.000)
@@ -21,4 +21,4 @@ data = {
 	"bath": 4
 }
 r = Properties(**data)
-print r.find_matching_requirements(10.0000,6371.000)
+print len(r.find_matching_requirements(1000.0000,6371.000))
