@@ -98,7 +98,7 @@ class MatchesCollection(object):
 			match.score = total_score
 		return sorted(matches,key=lambda x:x.score, reverse=True)
 
-		@classmethod
+	@classmethod
 	def order_requirements_by_score(cls, property, matches):
 		for match in matches:
 			price = property.price
@@ -106,8 +106,8 @@ class MatchesCollection(object):
 			bedroom = property.bedroom
 			max_budget = match.max_budget
 			min_budget = match.min_budget
-			max_bedroom = match.max_bedroom
-			min_bedroom = match.min_bedroom
+			max_bedroom = match.max_bedrooms
+			min_bedroom = match.min_bedrooms
 			max_bathroom = match.max_bathroom
 			min_bathroom = match.min_bathroom
 
@@ -153,21 +153,32 @@ class MatchesCollection(object):
 		
 class Requirement(object):
 	"""docstring for ClassName"""
-	def __init__(self, lat,lon,min_budget,max_budget,min_bedrooms,max_bedrooms,min_bathroom,max_bathroom, listed_on = None, id = None):
+	def __init__(self, lat,lon,min_budget,max_budget,min_bed,max_bed,min_bath,max_bath, distance=None,listed_on = None, id = None):
 		self.lat = lat
 		self.lat_rad = radians(lat)
 		self.lon = lon
 		self.lon_rad = radians(lon)
 		self.min_budget = min_budget
 		self.max_budget = max_budget
-		self.min_bedrooms = min_bedrooms
-		self.max_bedrooms = max_bedrooms
-		self.min_bathroom = min_bathroom
-		self.max_bathroom = max_bathroom
+		self.min_bedrooms = min_bed
+		self.max_bedrooms = max_bed
+		self.min_bathroom = min_bath
+		self.max_bathroom = max_bath
+		self.id = id
+		self.listed_on= listed_on
 		self.sql = None
+		self.distance = distance
 		self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 		self.db = DBHelper.get_db()
 		self.score = None
+	
+	def __repr__(self):
+                temp = self.__dict__
+                del temp['sql']
+                del temp['db']
+                del temp['redis']
+                temp['listed_on'] = str(temp['listed_on'])
+                return str(temp)
 
 	
 
@@ -258,8 +269,8 @@ class Properties(object):
 					)
 		sql_where_clause =[
 			"min_budget*0.75 <= %s AND max_budget*1.25 >= %s " % (self.price, self.price),
-			"min_bed -2 <= %s AND max_bed + 2>= %s" %(self.bedroom, self.bedroom),
-			"min_bath -2 <= %s AND max_bath + 2>= %s" %(self.bathroom, self.bathroom)
+			"min_bed -2<= %s AND max_bed +2>= %s" %(self.bedroom, self.bedroom),
+			"min_bath -2<= %s AND max_bath +2>= %s" %(self.bathroom, self.bathroom)
 		]
 		sql_having_clause = " HAVING distance <= {}"
 		sql_parts = [sql]
@@ -271,4 +282,4 @@ class Properties(object):
 			prop = Requirement(**prop)
 			matches.append(prop)
 		
-		return MatchesCollection.order_requirements_by_score(self,list(x))
+		return MatchesCollection.order_requirements_by_score(self,matches)
