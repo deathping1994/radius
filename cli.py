@@ -14,9 +14,9 @@ def input_requirement():
 		"min_bed": int(user_input[7]) if user_input[2] is not '_' else None
 	}
 	r = Requirement(**data)
-	r.find_matching_properties(10.0000,6371.000)
+	print r.find_matching_properties(10.0000,6371.000)
 def input_property():
-	user_input = raw_input("Enter lat,long,price,bathroom,bedroom \n")
+	user_input = raw_input("Enter lat,long,price,bedroom,bathroom \n")
 	user_input = user_input.split(',')
 	data = {
 		"lat": float(user_input[0]),
@@ -26,14 +26,14 @@ def input_property():
 		"bath": float(user_input[4])
 	}
 	r = Properties(**data)
-	r.find_matching_requirements(10.0000,6371.000)
+	print r.find_matching_requirements(10.0000,6371.000)
 
 def main():
 	while True:
 		resp = int(raw_input("Press 1 for finding Requirements\n Press 2 for finding Properties"))
-		if resp == 1:
+		if resp == 2:
 			input_requirement()
-		elif resp == 2:
+		elif resp == 1:
 			input_property()
 
 

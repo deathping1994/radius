@@ -41,6 +41,7 @@ class DBHelper(object):
             return cls.db
       @classmethod
       def execute_query(cls,db_cursor, sql):
+	    print sql
             cached_result = cls._get_result_from_cache(sql)
             if cached_result:
                   return json.loads(cached_result)
