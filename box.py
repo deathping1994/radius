@@ -1,5 +1,5 @@
 import sys
-from core import Requirement
+from core import Requirement, Properties
 data = {
 	"lat": float(sys.argv[1]),
 	"lon": float(sys.argv[2]),
@@ -12,3 +12,13 @@ data = {
 }
 r = Requirement(**data)
 print r.find_matching_properties(10.0000,6371.000)
+
+data = {
+	"lat": float(sys.argv[1]),
+	"lon": float(sys.argv[2]),
+	"price": 10000,
+	"bed": 10,
+	"bath": 4
+}
+r = Properties(**data)
+print r.find_matching_requirements(10.0000,6371.000)

@@ -169,7 +169,7 @@ class Requirement(object):
 		return MatchesCollection.order_matches_by_score(self,matches)
 
 class Properties(object):
-	def __init__(self, lat,lon,price,bed,bath,distance,listed_on,id=None):
+	def __init__(self, lat,lon,price,bed,bath,listed_on=None,distance=None,id=None):
 		self.lat = lat
 		self.lat_rad = radians(lat)
 		self.lon = lon
