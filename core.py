@@ -106,9 +106,61 @@ class MatchesCollection(object):
 			match.score = total_score
 		return sorted(matches,key=lambda x:x.score, reverse=True)
 
+		@classmethod
+	def order_requirements_by_score(cls, property, matches):
+		for match in matches:
+			price = property.price
+			bathroom = property.bathroom
+			bedroom = property.bedroom
+			max_budget = match.max_budget
+			min_budget = match.min_budget
+			max_bedroom = match.max_bedroom
+			min_bedroom = match.min_bedroom
+			max_bathroom = match.max_bathroom
+			min_bathroom = match.min_bathroom
+
+			distance = match.distance if match.distance > 2 else 2
+			distance_score = 0.3*(2/distance)
+
+			if min_budget <= price <= max_budget:
+				delta = 0
+				leeway = 0
+			else:
+				if max_budget != min_budget:   # both max and min provided
+					delta = (min(abs((min_budget-price)/min_budget), abs((max_budget-price)/max_budget))) * 0.3
+					leeway = 0
+				else:
+					delta = abs((min_budget-price)/min_budget) * 0.3
+					leeway = 0.1
+			price_score = (0.3 - delta + leeway)
+			price_score = price_score if price_score <= 0.3 else 0.3
+
+			max_bedroom = max_bedroom or min_bedroom
+			min_bedroom = min_bedroom or max_bedroom
+			if min_bedroom <= bedroom <= max_bedroom:
+				delta = 0
+			else:
+				if max_bedroom != min_bedroom:  # both max and min provided
+					delta = min(abs((min_bedroom-bedroom)/min_bedroom), abs((max_bedroom-bedroom)/max_bedroom)) * 0.2
+			bedroom_score = (0.2 - delta) 
+			bedroom_score = bedroom_score if bedroom_score <= 0.2 else 0.2
+
+			max_bathroom = max_bathroom or min_bathroom
+			min_bathroom = min_bathroom or max_bathroom
+			if min_bathroom <= bathroom <= max_bathroom:
+				delta = 0
+			else:
+				if max_bathroom != min_bathroom:  # both max and min provided
+					delta = min(abs((min_bathroom-bathroom)/min_bathroom), abs((max_bathroom-bathroom)/max_bathroom)) * 0.2
+			bathroom_score = (0.2 - delta) 
+			bathroom_score = bathroom_score if bathroom_score <= 0.2 else 0.2
+			total_score = distance_score + price_score + bedroom_score + bathroom_score
+			match.score = total_score
+		return sorted(matches,key=lambda x:x.score, reverse=True)
+
 class Requirement(object):
 	"""docstring for ClassName"""
-	def __init__(self, lat,lon,min_budget,max_budget,min_bedrooms,max_bedrooms,min_bathroom,max_bathroom):
+	def __init__(self, lat,lon,min_budget,max_budget,min_bedrooms,max_bedrooms,min_bathroom,max_bathroom, listed_on = None, id = None):
 		self.lat = lat
 		self.lat_rad = radians(lat)
 		self.lon = lon
@@ -122,6 +174,7 @@ class Requirement(object):
 		self.sql = None
 		self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 		self.db = db.get_db()
+		self.score = None
 
 	def _get_result_from_cache(self):
 		if self.sql:
@@ -230,4 +283,10 @@ class Properties(object):
 		sql = " AND ".join(sql_parts) + sql_having_clause
 		x = self.db.cursor()
 		x.execute(sql.format(*params))
-		return MatchesCollection.order_matches_by_score(self,list(x))
+		results = get_results(x)
+		matches = []
+		for prop in results:
+			prop = Requirement(**prop)
+			matches.append(prop)
+		
+		return MatchesCollection.order_requirements_by_score(self,list(x))
