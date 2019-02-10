@@ -11,4 +11,4 @@ data = {
 	"min_bedrooms": 4
 }
 r = Requirement(**data)
-r.find_matching_properties(10.0000,6371.000)
+print r.find_matching_properties(10.0000,6371.000)

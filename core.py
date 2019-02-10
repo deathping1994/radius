@@ -11,7 +11,10 @@ def get_results(db_cursor):
 		desc = [d[0] for d in db_cursor.description]
 		results = [dotdict(dict(zip(desc, res))) for res in db_cursor.fetchall()]
 		return results
-
+class dotdict(dict):
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
 class GeoHelper(object):
 	"""docstring for ClassName"""
@@ -54,14 +57,14 @@ class MatchesCollection(object):
 	def order_matches_by_score(cls, requirement, matches):
 		max_budget = requirement.max_budget
 		min_budget = requirement.min_budget
-		max_bed = requirement.max_bedrooms
-        min_bed = requirement.min_bedrooms
-        max_bath = requirement.max_bathroom
-        min_bath = requirement.min_bathroom
+		max_bedroom = requirement.max_bedrooms
+		min_bedroom = requirement.min_bedrooms
+		max_bathroom = requirement.max_bathroom
+		min_bathroom = requirement.min_bathroom
 
 		for match in matches:
 			price = match.price
-			bathroom = match.bath
+			bathroom = match.bathroom
 			bedroom = match.bedroom
 
 			distance = match.distance if match.distance > 2 else 2
@@ -101,7 +104,7 @@ class MatchesCollection(object):
 			bathroom_score = bathroom_score if bathroom_score <= 0.2 else 0.2
 			total_score = distance_score + price_score + bedroom_score + bathroom_score
 			match.score = total_score
-		return sort(matches,key="score", reverse=True)
+		return sorted(matches,key=lambda x:x.score, reverse=True)
 
 class Requirement(object):
 	"""docstring for ClassName"""
@@ -166,19 +169,28 @@ class Requirement(object):
 		return MatchesCollection.order_matches_by_score(self,matches)
 
 class Properties(object):
-	def __init__(self, lat,lon,min_price,bedroom,bathroom):
+	def __init__(self, lat,lon,price,bed,bath,distance,listed_on,id=None):
 		self.lat = lat
 		self.lat_rad = radians(lat)
 		self.lon = lon
 		self.lon_rad = radians(lon)
-		self.bedroom = bedroom
-		self.bathroom = bathroom
+		self.bedroom = bed
+		self.bathroom = bath
 		self.price = price
 		self.score = 0
 		self.sql = None
+		self.distance = distance
+		self.listed_on = listed_on
+		self.id = id
 		self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 		self.db = db.get_db()
-
+	def __repr__(self):
+		temp = self.__dict__
+		del temp['sql']
+		del temp['db']
+		del temp['redis']
+		temp['listed_on'] = str(temp['listed_on'])
+		return str(temp)
 	def _get_result_from_cache(self):
 		if self.sql:
 			sql_hash = md5(self.sql).hexdigest()
