@@ -8,7 +8,7 @@ How to use -
 DB_USER=radius DB_PASSWORD=abcdefgh DB_HOST=127.0.0.1 python cli.py
 ```
 https://www.dropbox.com/s/762f5h2h2yjwv1x/Screenshot%202019-02-10%2023.32.55.png?dl=0
-![Screenshot of CLI in action](https://www.dropbox.com/s/762f5h2h2yjwv1x/Screenshot%202019-02-10%2023.32.55.png?dl=0)
+![Screenshot of CLI in action](https://www.dropbox.com/s/762f5h2h2yjwv1x/Screenshot%202019-02-10%2023.32.55.png?dl=1)
 ## Dataset
 Have used Location data set of starbucks in US to generate dummy data for requirements and properties
 
