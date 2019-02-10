@@ -19,14 +19,14 @@ primary index the tables also have secondary B-Tree index on price,bedroom,bathr
 ## Performance
 
 Tested for 8 Million Properties and 1 million Requirements
-(A) - Response time Without Cache  ~13.02 ms
-(B) - Response time with cache but cache miss ~22.34 ms
-(C) - Response time when cache hit ~2ms
+- (A) - Response time Without Cache  ~13.02 ms
+- (B) - Response time with cache but cache miss ~22.34 ms
+- (C) - Response time when cache hit ~2ms
 
 ### Scope of improvement -
-(A) - Mysql query performance can be improved to some extent by using int instead of float/double to store lat/long
-(B) - Response time in cache miss can be improved by choosing a more compact and fast data serialization to and from redis
-(C) - Response time in case of Cache hit can be improved by caching requirements by id, however that will need more memory
+- (A) - Mysql query performance can be improved to some extent by using int instead of float/double to store lat/long
+- (B) - Response time in cache miss can be improved by choosing a more compact and fast data serialization to and from redis
+- (C) - Response time in case of Cache hit can be improved by caching requirements by id, however that will need more memory
 
 ### Improvement in % Cache hits -
 Currently the results from SQL are cached with md5 of sql query. Cache hits can be increased by careful and more 
