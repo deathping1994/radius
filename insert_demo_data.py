@@ -1,11 +1,17 @@
 import MySQLdb
 import random
 from math import radians
+import os
+from dotenv import load_dotenv
 
-conn = MySQLdb.connect(host= "indianfire.in",
-                  user="root",
-                  passwd="admin",
-                  db="radius-temp")
+load_dotenv()
+
+conn = MySQLdb.connect(
+    host=os.environ.get('DB_HOST', 'localhost'),
+    user=os.environ.get('DB_USER', 'radius'),
+    passwd=os.environ.get('DB_PASSWORD', 'radius'),
+    db=os.environ.get('DB_NAME', 'radius')
+)
 x = conn.cursor()
 
 data = open("data.csv")

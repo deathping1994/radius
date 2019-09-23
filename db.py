@@ -4,10 +4,13 @@ from hashlib import md5
 import json
 import redis
 import datetime
+from dotenv import load_dotenv
 
-DB_USER = os.environ.get('DB_USER', 'root')
+load_dotenv()
+
+DB_USER = os.environ.get('DB_USER', 'radius')
 DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'admin')
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'radius')
 DB_NAME = os.environ.get('DB_NAME', 'radius')
 
 
@@ -33,7 +36,7 @@ class DBHelper(object):
       @classmethod
       def get_db(cls):
             if not cls.db:
-                  cls.db = MySQLdb.connect(host= DB_HOST,
+                  cls.db = MySQLdb.connect(host=DB_HOST,
                         user=DB_USER,
                         passwd=DB_PASSWORD,
                         db=DB_NAME)
