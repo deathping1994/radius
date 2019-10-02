@@ -52,7 +52,7 @@ Have used Location data set of starbucks in US to generate dummy data for requir
 
 ## Distance Calculation
 
-This program uses Bounding box method for filtering out most of the non matching locations and once the working set is limited, Hoversine Formula is used to calculate distance. All the lat/long are stored in radians to avoid doing the conversions at runtime on SQL server.
+This program uses Bounding box method for filtering out most of the non matching locations and once the working set is limited, Haversine Formula is used to calculate distance. All the lat/long are stored in radians to avoid doing the conversions at runtime on SQL server.
 
 ## Database Indexes
 
@@ -60,15 +60,19 @@ Properties and requirements both have (long,lat,id) as primary key. The Btree in
 
 ## Performance
 
-Tested for 8 Million Properties and 1 million Requirements on 1GB/Single Core/SSD server 
-- (A) - Response time Without Cache  ~13.02 ms
-- (B) - Response time with cache but cache miss ~22.34 ms
-- (C) - Response time when cache hit ~2ms
+Tested for 8 Million Properties and 1 million Requirements on 1GB/Single Core/SSD server
+<ol type="A">
+	<li>Response time Without Cache  ~13.02 ms</li>
+	<li>Response time with cache but cache miss ~22.34 ms</li>
+	<li>Response time when cache hit ~2ms</li>
+</ol>
 
 ### Scope of improvement -
-- (A) - Mysql query performance can be improved to some extent by using int instead of float/double to store lat/long
-- (B) - Response time in cache miss can be improved by choosing a more compact and fast data serialization to and from redis
-- (C) - Response time in case of Cache hit can be improved by caching requirements by id, however that will need more memory
+<ol type="A">
+	<li>Mysql query performance can be improved to some extent by using int instead of float/double to store lat/long</li>
+	<li>Response time in cache miss can be improved by choosing a more compact and fast data serialization to and from redis</li>
+	<li>Response time in case of Cache hit can be improved by caching requirements by id, however that will need more memory</li>
+</ol>
 
 ## Improvement in % Cache hits
 
