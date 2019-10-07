@@ -2,4 +2,6 @@
 
 /venv
 
+/venv3
+
 .env
