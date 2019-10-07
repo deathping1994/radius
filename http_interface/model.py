@@ -8,7 +8,7 @@ class Model(object):
         return json.dumps(self.__dict__)
 
 class Property(Model):
-    table = "properties_new"
+    table = "properties"
 
     def __init__(self,lat,lon,bed,bath,price, listed_on,id=None):
         self.lat = lat
