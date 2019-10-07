@@ -1,5 +1,6 @@
 import csv
 from math import radians
+from pprint import pprint
 from bound import bounding_rectangle, check_inside_bounding_rectangle
 from distance import great_circle_distance
 
@@ -10,7 +11,7 @@ def sort_by_dist(elem):
     '''Sorting data by distance'''
     return elem['dist']
 
-def get_profiles(lat, lon, distance, max_results=10):
+def get_profiles(lat, lon, distance=10, max_results=10, in_radians=False):
     '''Gets profiles within the specified distance.
 
     Calculates the bounding box for the given geographic location and distance and returns a list of
@@ -22,8 +23,12 @@ def get_profiles(lat, lon, distance, max_results=10):
     distance -- distance in Kms
     max_results -- number of results needed to be returned
     '''
+    # convert to radians if not already in radians
+    if not in_radians:
+        lat, lon = radians(lat), radians(lon)
+
     profiles = [] # result set
-    min_lat, min_lon, max_lat, max_lon = bounding_rectangle(radians(lat), radians(lon), distance)
+    min_lat, min_lon, max_lat, max_lon = bounding_rectangle(lat, lon, distance)
 
     with open('data.csv') as f:
         reader = csv.DictReader(f)
@@ -36,12 +41,13 @@ def get_profiles(lat, lon, distance, max_results=10):
                 ):
                 # get distance if inside bounding box
                 dist = great_circle_distance(lat, lon, rad_lat, rad_lon)
-                profiles.append({
-                    'lat': float(row['phi']),
-                    'long': float(row['lambda']),
-                    'dist': dist,
-                    'address': row['address']}
-                )
+                if dist <= distance:
+                    profiles.append({
+                        'lat': float(row['phi']),
+                        'long': float(row['lambda']),
+                        'dist': dist,
+                        'address': row['address']}
+                    )
 
     profiles.sort(key=sort_by_dist)
 
@@ -67,7 +73,7 @@ def main():
     print('Sorting profiles based on latitude...')
     profiles.sort(key=sort_by_lat)
 
-    print(profiles[:10])
+    pprint(profiles[:10])
 
 if __name__ == '__main__':
     main()
