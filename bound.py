@@ -9,10 +9,10 @@ def check_poles_or_180th_meridian(phi_min, lmbda_min, phi_max, lmbda_max):
     and returns modified bounding coordinates.
 
     Arguments:
-    phi_min -- minimum latitude
-    lmbda_min -- minimum longitude
-    phi_max -- maximum latitude
-    lmbda_max -- maximum longitude
+    phi_min -- minimum latitude in radians
+    lmbda_min -- minimum longitude in radians
+    phi_max -- maximum latitude in radians
+    lmbda_max -- maximum longitude in radians
     '''
 
     # if maximum latitude is greater than pi/2, parts of all meridians at North pole are within the bounding rectangle
@@ -47,9 +47,9 @@ def bounding_rectangle(phi, lmbda, distance):
     given geographic coordinate.
 
     Arguments:
-    phi -- latitude
-    lmbda -- longitude
-    distance -- radius of the circle around the latitude and longitude
+    phi -- latitude in radians
+    lmbda -- longitude in radians
+    distance -- radius of the circle around the latitude and longitude in Kms
 
     Reference article:
     http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates

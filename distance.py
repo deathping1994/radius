@@ -26,16 +26,16 @@ def great_circle_distance(phi1, lmbda1, phi2, lmbda2):
     Earth's radius to get the radial distance (in Kms).
 
     Arguments:
-    phi1 -- first latitude
-    lmbda1 -- first longitude
-    phi2 -- second latitude
-    lmbda2 -- second longitude
+    phi1 -- first latitude in radians
+    lmbda1 -- first longitude in radians
+    phi2 -- second latitude in radians
+    lmbda2 -- second longitude in radians
 
     Wikipedia article for great circle distance:
     https://en.wikipedia.org/wiki/Great-circle_distance
     '''
-    n_vector1 = n_vector(phi1_rad, lmbda1_rad)
-    n_vector2 = n_vector(phi2_rad, lmbda2_rad)
+    n_vector1 = n_vector(phi1, lmbda1)
+    n_vector2 = n_vector(phi2, lmbda2)
     dot = dot_product(n_vector1, n_vector2)
 
     delta_sigma = acos(dot)
