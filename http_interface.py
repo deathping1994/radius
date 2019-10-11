@@ -1,4 +1,5 @@
-from data import get_profiles
+# from data import get_profiles
+from database import get_profiles
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -26,6 +27,7 @@ def profiles():
         profiles = get_profiles(lat, lon)
     else:
         profiles = get_profiles(lat, lon, float(dist))
+    # profiles = get_profiles()
     return jsonify({'profiles': profiles})
 
 if __name__ == '__main__':

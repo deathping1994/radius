@@ -1,3 +1,8 @@
+'''This module provides functions to get profiles stored in data.csv sorted by distance.
+
+No database connection is made; instead file I/O is done to read data from a CSV file
+and query is done on that data manually.
+'''
 import csv
 from math import radians
 from pprint import pprint
